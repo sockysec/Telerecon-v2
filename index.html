@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Telerecon Graph</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-row">
+          <div class="brand-lockup">
+            <div class="brand-logo" aria-hidden="true">
+              <svg viewBox="0 0 40 40">
+                <path class="logo-orbit" d="M20 5.5a14.5 14.5 0 1 0 0 29 14.5 14.5 0 0 0 0-29Z" />
+                <path class="logo-scan" d="M9 20h4M27 20h4M20 9v4M20 27v4" />
+                <path class="logo-plane" d="M11.6 15.1 29.2 8.8l-5.5 22.1-5.1-7-6.1 4.9 1.4-7.8-2.3-5.9Z" />
+                <path class="logo-fold" d="m13.9 21 8.8-6.4-4.1 9.3" />
+                <path class="logo-network" d="M13.6 27.6 20 20l6.4 7.6" />
+                <circle class="logo-node" cx="20" cy="20" r="2.4" />
+                <circle class="logo-node secondary" cx="13.6" cy="27.6" r="1.8" />
+                <circle class="logo-node secondary" cx="26.4" cy="27.6" r="1.8" />
+              </svg>
+            </div>
+            <div>
+              <h1>Telerecon</h1>
+              <p>Telegram network mapper</p>
+            </div>
+          </div>
+          <div class="brand-actions">
+            <div id="apiStatus" class="status-dot" title="API bridge status"></div>
+            <button id="collapseSidebar" class="icon-button sidebar-collapse" type="button" title="Collapse sidebar" aria-label="Collapse sidebar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Workspace">
+          <button class="nav-button active" type="button" data-menu-target="collectPane" title="Collection" aria-label="Collection">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14M5 5h5v5H5zM14 14h5v5h-5z" /></svg>
+            <span>Collect</span>
+          </button>
+          <button class="nav-button" type="button" data-menu-target="filtersPane" title="Filters and layout" aria-label="Filters and layout">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
+            <span>Filters</span>
+          </button>
+          <button class="nav-button" type="button" data-menu-target="dataPane" title="Data" aria-label="Data">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h9l3 3v13H6zM14 4v4h4M9 13h6M9 17h6" /></svg>
+            <span>Data</span>
+          </button>
+          <button class="nav-button" type="button" data-menu-target="directoryPane" title="Directory" aria-label="Directory">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16M7 6v12M17 6v12" /></svg>
+            <span>Directory</span>
+          </button>
+          <button id="openSettings" class="nav-button" type="button" title="Settings" aria-label="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" /><path d="M19.4 15a1.8 1.8 0 0 0 .3 2l.1.1-2.1 2.1-.1-.1a1.8 1.8 0 0 0-2-.3 1.8 1.8 0 0 0-1.1 1.7V21h-3v-.5a1.8 1.8 0 0 0-1.1-1.7 1.8 1.8 0 0 0-2 .3l-.1.1-2.1-2.1.1-.1a1.8 1.8 0 0 0 .3-2 1.8 1.8 0 0 0-1.7-1.1H4v-3h.5a1.8 1.8 0 0 0 1.7-1.1 1.8 1.8 0 0 0-.3-2l-.1-.1 2.1-2.1.1.1a1.8 1.8 0 0 0 2 .3A1.8 1.8 0 0 0 11.5 4h3a1.8 1.8 0 0 0 1.1 1.7 1.8 1.8 0 0 0 2-.3l.1-.1 2.1 2.1-.1.1a1.8 1.8 0 0 0-.3 2A1.8 1.8 0 0 0 21 10.5v3h-.5a1.8 1.8 0 0 0-1.1 1.5Z" /></svg>
+            <span>Settings</span>
+          </button>
+          <button id="exitApp" class="nav-button exit-nav" type="button" title="Exit local app" aria-label="Exit local app">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6H6v12h4M14 8l4 4-4 4M8 12h10" /></svg>
+            <span>Exit</span>
+          </button>
+        </nav>
+
+        <section id="collectPane" class="panel sidebar-pane collect-panel active">
+          <div class="panel-head">
+            <h2>Collection</h2>
+            <span id="automationState" class="pill">idle</span>
+          </div>
+          <label>
+            Target seed channels/chats
+            <textarea id="seedInput" class="seed-input" placeholder="@channel&#10;https://t.me/another_channel&#10;@third_channel" autocomplete="off"></textarea>
+          </label>
+          <div class="collection-meta">
+            <span id="targetCount" class="meta-chip">0 targets</span>
+            <span id="queueCount" class="meta-chip">0 queued</span>
+            <span class="meta-chip">all history</span>
+          </div>
+          <label id="depthOption" class="depth-option" hidden>
+            Snowball depth
+            <input id="depthInput" type="number" min="1" max="4" value="2" disabled />
+          </label>
+          <label class="toggle-row">
+            <input id="snowballToggle" type="checkbox" />
+            <span>
+              <strong>Snowball collection</strong>
+              <small>Collect newly discovered forwarded channels up to the selected depth.</small>
+            </span>
+          </label>
+          <div class="collection-actions">
+            <button id="startCollection" class="primary-button">Collect Targets</button>
+            <button id="cancelCollection" class="danger-button" hidden>Cancel</button>
+          </div>
+          <div class="button-grid">
+            <button id="fitGraph">Fit Graph</button>
+            <button id="clearGraph">Clear Graph</button>
+          </div>
+          <div class="metrics">
+            <div><strong id="nodeCount">0</strong><span>nodes</span></div>
+            <div><strong id="edgeCount">0</strong><span>links</span></div>
+            <div><strong id="scanCount">0</strong><span>scanned</span></div>
+          </div>
+          <p class="fine-print">Add one or more targets separated by new lines, commas, or spaces. Mapping always scans all accessible history for inbound forwards.</p>
+        </section>
+
+        <section id="filtersPane" class="panel sidebar-pane filters-panel" hidden>
+          <div class="panel-head">
+            <h2>Filters</h2>
+            <span id="layoutState" class="pill">settled</span>
+          </div>
+          <label class="toggle-row compact-toggle" title="Hide inaccessible nodes that only have an internal id">
+            <input id="hideBlankNodes" type="checkbox" />
+            <span>
+              <strong>Hide blank nodes</strong>
+              <small>Exclude unresolved ids with no public handle or profile.</small>
+            </span>
+          </label>
+          <label class="toggle-row compact-toggle" title="Hide Telegram group chats while keeping channels visible">
+            <input id="hideChatGroups" type="checkbox" />
+            <span>
+              <strong>Hide chat groups</strong>
+              <small>Exclude nodes identified as Telegram group chats.</small>
+            </span>
+          </label>
+          <label class="toggle-row compact-toggle" title="Hide Telegram channels while keeping chats and groups visible">
+            <input id="hideChannels" type="checkbox" />
+            <span>
+              <strong>Hide channels</strong>
+              <small>Only show nodes identified as Telegram chats or groups.</small>
+            </span>
+          </label>
+          <label class="toggle-row compact-toggle" title="Show Telegram users as a separate graph layer">
+            <input id="showUserLayer" type="checkbox" />
+            <span>
+              <strong>User layer</strong>
+              <small>Display discovered user nodes with distinct sizing and styling.</small>
+            </span>
+          </label>
+          <label>
+            Node size
+            <select id="nodeSizeMode">
+              <option value="fixed">Fixed</option>
+              <option value="members">Members</option>
+              <option value="activity">Activity</option>
+              <option value="centrality">Centrality</option>
+              <option value="influence">Influence</option>
+            </select>
+          </label>
+          <div class="filter-group">
+            <h3>Readability</h3>
+            <label>
+              Label density
+              <select id="labelDensity">
+                <option value="auto">Auto</option>
+                <option value="priority">Priority only</option>
+                <option value="all">All labels</option>
+                <option value="none">No labels</option>
+              </select>
+            </label>
+            <label>
+              Minimum link weight
+              <input id="minEdgeWeight" type="range" min="1" max="12" value="1" />
+            </label>
+            <small id="readabilityLabel">Showing all observed links with automatic label culling.</small>
+          </div>
+          <div class="filter-group">
+            <h3>Communities</h3>
+            <label>
+              Detection
+              <select id="communityMode">
+                <option value="off">Off</option>
+                <option value="label">Label propagation</option>
+              </select>
+            </label>
+            <small id="communityLabel">community detection off</small>
+          </div>
+          <div class="vertical-actions">
+            <button id="reflowGraph" title="Recalculate force layout">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6M20 9a8 8 0 0 0-14.8-3M4 15a8 8 0 0 0 14.8 3" /></svg>
+              <span>Reflow layout</span>
+            </button>
+            <button id="gridGraph" title="Arrange nodes in a grid">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" /></svg>
+              <span>Grid layout</span>
+            </button>
+            <button id="fitGraphTop" title="Fit graph to view">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" /></svg>
+              <span>Fit to view</span>
+            </button>
+          </div>
+          <div class="filter-group">
+            <h3>Time</h3>
+            <label class="time-toggle">
+              <input id="timeFilterToggle" type="checkbox" />
+              <span>Enable timeline</span>
+            </label>
+            <div class="date-grid">
+              <label>Start<input id="timeStart" type="date" /></label>
+              <label>End<input id="timeEnd" type="date" /></label>
+            </div>
+            <div class="timeline-row">
+              <button id="timePlay" class="icon-button" title="Play timelapse">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z" /></svg>
+              </button>
+              <input id="timeSlider" type="range" min="0" max="100" value="100" disabled />
+            </div>
+            <small id="timeLabel">no dated data</small>
+          </div>
+          <div class="legend">
+            <span><i class="seed"></i> seed</span>
+            <span><i class="channel"></i> channel</span>
+            <span><i class="chat"></i> chat</span>
+            <span><i class="user"></i> user</span>
+            <span><i class="collected"></i> collected</span>
+            <span><i class="uncollected"></i> not collected</span>
+            <span><i class="forward"></i> forwarding</span>
+            <span><i class="associated"></i> chat link</span>
+            <span><i class="telegram-link"></i> t.me link</span>
+            <span><i class="recommended"></i> recommended</span>
+          </div>
+        </section>
+
+        <section id="dataPane" class="panel sidebar-pane data-panel" hidden>
+          <div class="panel-head">
+            <h2>Data</h2>
+          </div>
+          <textarea id="jsonImport" placeholder="Paste Telerecon JSON or edge list"></textarea>
+          <div class="button-grid">
+            <button id="importGraph">Import</button>
+            <button id="exportGraph">Export</button>
+            <button id="exportCsv">Export CSV</button>
+          </div>
+        </section>
+
+        <section id="directoryPane" class="panel sidebar-pane directory-panel" hidden>
+          <div class="panel-head">
+            <h2>Directory</h2>
+            <span id="directoryStatus" class="pill">empty</span>
+          </div>
+          <p id="directoryMeta" class="fine-print">Create a directory from the chats and channels currently visible in the graph, or from the selected group set.</p>
+          <div class="button-grid">
+            <button id="createDirectory">Create Directory</button>
+            <button id="clearDirectory">Clear</button>
+          </div>
+          <div id="directorySummary" class="metrics directory-metrics">
+            <div><strong id="directoryCount">0</strong><span>entries</span></div>
+            <div><strong id="directorySelectedCount">0</strong><span>selected</span></div>
+            <div><strong id="directoryTargetPosts">0</strong><span>target posts</span></div>
+          </div>
+          <label>
+            Target user
+            <input id="targetUserInput" placeholder="@username or user:123456789" autocomplete="off" />
+          </label>
+          <div class="button-grid">
+            <button id="runTargetAnalysis" class="primary-button">Analyze Target</button>
+            <button id="clearTargetAnalysis">Reset Target</button>
+          </div>
+          <label>
+            Query dashboard
+            <input id="targetQueryInput" placeholder="Search post text, chat, sender, links" autocomplete="off" />
+          </label>
+          <div class="directory-filter-grid">
+            <label>
+              Chat
+              <select id="targetChatFilter">
+                <option value="all">All chats</option>
+              </select>
+            </label>
+            <label>
+              Membership
+              <select id="targetMembershipFilter">
+                <option value="all">All</option>
+                <option value="member">Member</option>
+                <option value="not_member">Not member</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </label>
+            <label>
+              Activity
+              <select id="targetActivityFilter">
+                <option value="all">All</option>
+                <option value="active">Active chats</option>
+                <option value="inactive">No posts</option>
+              </select>
+            </label>
+          </div>
+          <div id="directoryList" class="directory-list"></div>
+          <div id="targetDashboard" class="target-dashboard"></div>
+        </section>
+      </aside>
+
+      <section class="graph-stage">
+        <div class="topbar">
+          <div class="search-wrap">
+            <span>⌕</span>
+            <input id="searchInput" placeholder="Search nodes" autocomplete="off" />
+            <button id="searchPrev" class="icon-button" title="Previous match">‹</button>
+            <button id="searchNext" class="icon-button" title="Next match">›</button>
+            <small id="searchCount">0</small>
+          </div>
+          <div class="graph-quickbar" aria-label="Graph actions">
+            <button id="fitGraphQuick" class="icon-button" type="button" title="Fit graph" aria-label="Fit graph">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" /></svg>
+            </button>
+            <button id="reflowGraphQuick" class="icon-button" type="button" title="Reflow layout" aria-label="Reflow layout">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6M20 20v-6h-6M20 9a8 8 0 0 0-14.8-3M4 15a8 8 0 0 0 14.8 3" /></svg>
+            </button>
+            <button id="gridGraphQuick" class="icon-button" type="button" title="Grid layout" aria-label="Grid layout">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" /></svg>
+            </button>
+            <button id="openFiltersQuick" class="quick-text-button" type="button">Filters</button>
+          </div>
+          <div id="selectedActions" class="selected-actions" hidden>
+            <strong id="selectedCount">0 selected</strong>
+            <button id="selectedMap" type="button">Map</button>
+            <button id="selectedQueue" type="button">Queue</button>
+            <button id="selectedMembers" type="button" hidden>Members</button>
+            <button id="selectedExportCsv" type="button">Export CSV</button>
+            <button id="selectedDelete" class="danger-action" type="button">Delete</button>
+            <button id="selectedClear" class="secondary-action" type="button">Clear</button>
+          </div>
+        </div>
+        <canvas id="graphCanvas"></canvas>
+        <div class="scan-progress" aria-live="polite">
+          <div class="progress-head">
+            <p id="progressSummary" class="fine-print">Enter a target seed to begin collection.</p>
+            <div class="progress-actions">
+              <button id="pauseCollectionTop" class="progress-icon-button" type="button" title="Pause collection" aria-label="Pause collection" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14" /></svg>
+              </button>
+              <button id="skipCollectionTop" class="progress-icon-button" type="button" title="Skip current channel" aria-label="Skip current channel" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 5 7 7-7 7M13 5l7 7-7 7" /></svg>
+              </button>
+              <button id="cancelCollectionTop" class="progress-icon-button danger-icon-button" type="button" title="Cancel collection" aria-label="Cancel collection" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+              </button>
+              <details id="queueDetails" class="queue-dropdown">
+                <summary title="Queued tasks" aria-label="Queued tasks">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" /></svg>
+                  <span id="queueBadge">0</span>
+                </summary>
+                <div id="queueList" class="queue-list" role="list"></div>
+              </details>
+            </div>
+          </div>
+          <div class="progress-track">
+            <span id="progressFill"></span>
+          </div>
+          <ol>
+            <li id="progressSeed">Seed waiting</li>
+            <li id="progressBridge">Bridge waiting</li>
+            <li id="progressScan">Channel scan waiting</li>
+            <li id="progressMerge">Graph merge waiting</li>
+          </ol>
+          <div id="collectionStatusBanner" class="collection-status" role="status" hidden></div>
+        </div>
+        <div id="graphEmptyState" class="graph-empty-state" role="status">
+          <div class="empty-kicker">No graph data loaded</div>
+          <h2>Start with seed channels or an existing export.</h2>
+          <p>Collect Telegram targets from the left panel, or import Telerecon JSON / edge lists from Data.</p>
+          <div class="empty-actions">
+            <button id="emptyFocusSeeds" type="button">Add Seeds</button>
+            <button id="emptyFocusImport" type="button">Import Data</button>
+          </div>
+        </div>
+        <div id="details" class="details">
+          <h2>No node selected</h2>
+          <p>Click a node to inspect details. Shift-click, Ctrl-click, or Cmd-click to select multiple nodes.</p>
+        </div>
+      </section>
+    </main>
+
+    <div id="settingsModal" class="modal-backdrop" hidden>
+      <section class="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="panel-head">
+          <div>
+            <h2 id="settingsTitle">Telegram Settings</h2>
+            <p id="settingsStatus" class="fine-print">Credentials are stored locally on the server.</p>
+          </div>
+          <button id="closeSettings" class="icon-button" title="Close settings">×</button>
+        </div>
+        <label>
+          API ID
+          <input id="settingsApiId" inputmode="numeric" placeholder="12345" autocomplete="off" />
+        </label>
+        <label>
+          API hash
+          <input id="settingsApiHash" type="password" placeholder="Leave blank to keep current value" autocomplete="new-password" />
+        </label>
+        <div class="auth-guide">
+          <div class="step-row active" id="loginStepPhone">
+            <span>1</span>
+            <label>
+              Phone number
+              <input id="settingsPhone" placeholder="+15551234567" autocomplete="tel" />
+            </label>
+            <button id="sendLoginCode">Send Code</button>
+          </div>
+          <div class="step-row" id="loginStepCode">
+            <span>2</span>
+            <label>
+              Verification code
+              <input id="settingsCode" inputmode="numeric" placeholder="12345" autocomplete="one-time-code" />
+            </label>
+            <button id="verifyLoginCode">Verify</button>
+          </div>
+          <div class="step-row" id="loginStepPassword">
+            <span>3</span>
+            <label>
+              Two-step password
+              <input id="settingsPassword" type="password" placeholder="Only if Telegram asks for it" autocomplete="current-password" />
+            </label>
+            <button id="verifyLoginPassword">Unlock</button>
+          </div>
+        </div>
+        <details class="advanced-settings">
+          <summary>Advanced session paste</summary>
+          <label>
+            String session
+            <textarea id="settingsSession" placeholder="Leave blank to keep current value" autocomplete="off"></textarea>
+          </label>
+        </details>
+        <div class="settings-flags">
+          <span id="apiIdFlag" class="pill">api id unset</span>
+          <span id="apiHashFlag" class="pill">hash unset</span>
+          <span id="sessionFlag" class="pill">session unset</span>
+        </div>
+        <p class="fine-print">The code and two-step password are used only for this login. Secrets are never sent back to the browser after saving.</p>
+        <div class="button-grid">
+          <button id="saveSettings">Save Settings</button>
+          <button id="clearSettings">Clear Saved</button>
+        </div>
+      </section>
+    </div>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

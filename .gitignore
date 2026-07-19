@@ -1,0 +1,5 @@
+.telerecon-settings.json
+*.session
+*.session-journal
+node_modules/
+__pycache__/
